@@ -34,6 +34,8 @@ const HTTP_HEAD = "head";
 
 enum HttpMethod { put, get, post, delete, patch, head }
 
+enum ResponseType { text, hex }
+
 String _debugSendNativeCallback() {
   if (_XHR_DEBUG) {
     return """console.log("XMLHttpRequest._send_native_callback");
@@ -255,7 +257,7 @@ extension JavascriptRuntimeXhrExtension on JavascriptRuntime {
     dartContext[XHR_PENDING_CALLS_KEY] = [];
   }
 
-  JavascriptRuntime enableXhr() {
+  JavascriptRuntime enableXhr({required ResponseType responseType}) {
     httpClient = httpClient ?? http.Client();
     dartContext[XHR_PENDING_CALLS_KEY] = [];
 
@@ -323,10 +325,19 @@ extension JavascriptRuntimeXhrExtension on JavascriptRuntime {
             break;
         }
         // assuming request was successfully executed
-        String responseText = utf8.decode(response.bodyBytes);
-        try {
-          responseText = jsonEncode(json.decode(responseText));
-        } on Exception {}
+        String responseText;
+        switch (responseType) {
+          case ResponseType.text:
+            responseText = utf8.decode(response.bodyBytes);
+            try {
+              responseText = jsonEncode(json.decode(responseText));
+            } on Exception {}
+            break;
+          case ResponseType.hex:
+            responseText = response.bodyBytes.map((byte) => byte.toRadixString(16).padLeft(2, '0')).join('');
+            break;
+        }
+
         final xhrResult = XmlHttpRequestResponse(
           responseText: responseText,
           responseInfo:
@@ -423,11 +434,7 @@ class XhtmlHttpResponseInfo {
   }
 
   Map<String, Object?> toJson() {
-    return {
-      "statusCode": statusCode,
-      "statusText": statusText,
-      "responseHeaders": jsonEncode(responseHeaders)
-    };
+    return {"statusCode": statusCode, "statusText": statusText, "responseHeaders": jsonEncode(responseHeaders)};
   }
 }
 
@@ -439,10 +446,6 @@ class XmlHttpRequestResponse {
   XmlHttpRequestResponse({this.responseText, this.responseInfo, this.error});
 
   Map<String, Object?> toJson() {
-    return {
-      'responseText': responseText,
-      'responseInfo': responseInfo!.toJson(),
-      'error': error
-    };
+    return {'responseText': responseText, 'responseInfo': responseInfo!.toJson(), 'error': error};
   }
 }

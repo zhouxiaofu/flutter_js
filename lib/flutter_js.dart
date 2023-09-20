@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/services.dart';
+import 'package:flutter_js/extensions/xhr.dart';
 import 'package:flutter_js/javascript_runtime.dart';
 import 'package:flutter_js/javascriptcore/jscore_runtime.dart';
 
@@ -28,6 +29,7 @@ JavascriptRuntime getJavascriptRuntime({
   bool forceJavascriptCoreOnAndroid = false,
   bool xhr = true,
   Map<String, dynamic>? extraArgs = const {},
+  ResponseType responseType = ResponseType.text,
 }) {
   JavascriptRuntime runtime;
   if ((Platform.isAndroid && !forceJavascriptCoreOnAndroid)) {
@@ -44,7 +46,7 @@ JavascriptRuntime getJavascriptRuntime({
   } else {
     runtime = JavascriptCoreRuntime();
   }
-  if (xhr) runtime.enableFetch();
+  if (xhr) runtime.enableFetch(responseType: responseType);
   runtime.enableHandlePromises();
   return runtime;
 }
