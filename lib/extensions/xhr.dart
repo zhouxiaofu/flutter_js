@@ -414,11 +414,15 @@ class XhtmlHttpResponseInfo {
 class XhrInterceptor {
   const XhrInterceptor();
 
+  Encoding bodyEncoding(http.Response response, Map<String, String> headers) {
+    return utf8;
+  }
+
   RequestInfo requestHandler(RequestInfo requestInfo) => requestInfo;
 
   XmlHttpRequestResponse responseConverter(http.Response response, Map<String, String> headers) {
     // assuming request was successfully executed
-    String responseText = utf8.decode(response.bodyBytes);
+    String responseText = bodyEncoding(response, headers).decode(response.bodyBytes);
     try {
       responseText = jsonEncode(json.decode(responseText));
     } on Exception {}
