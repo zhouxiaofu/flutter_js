@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_js/javascript_runtime.dart';
 import 'package:http/http.dart' as http;
 
@@ -273,53 +274,59 @@ extension JavascriptRuntimeXhrExtension on JavascriptRuntime {
       // for each pending call, calls the remote http service
       pendingCalls.forEach((element) async {
         XhrPendingCall pendingCall = element as XhrPendingCall;
+        debugPrint("xhr send request ${pendingCall.url}");
         xhrInterceptor.requestHandler(RequestInfo.fromXhrPendingCall(pendingCall)).copyToPendingCall(pendingCall);
         HttpMethod eMethod = HttpMethod.values.firstWhere((e) => e.toString().toLowerCase() == ("HttpMethod.${pendingCall.method}".toLowerCase()));
-        late http.Response response;
+        Future<http.Response> responseFuture;
+        debugPrint("xhr send request 1 ${pendingCall.url}");
         switch (eMethod) {
           case HttpMethod.head:
-            response = await httpClient!.head(
+            responseFuture = httpClient!.head(
               Uri.parse(pendingCall.url!),
               headers: pendingCall.headers,
             );
             break;
           case HttpMethod.get:
-            response = await httpClient!.get(
+            responseFuture = httpClient!.get(
               Uri.parse(pendingCall.url!),
               headers: pendingCall.headers,
             );
             break;
           case HttpMethod.post:
-            response = await httpClient!.post(
+            responseFuture = httpClient!.post(
               Uri.parse(pendingCall.url!),
               body: (pendingCall.body is String) ? pendingCall.body : jsonEncode(pendingCall.body),
               headers: pendingCall.headers,
             );
             break;
           case HttpMethod.put:
-            response = await httpClient!.put(
+            responseFuture = httpClient!.put(
               Uri.parse(pendingCall.url!),
               body: (pendingCall.body is String) ? pendingCall.body : jsonEncode(pendingCall.body),
               headers: pendingCall.headers,
             );
             break;
           case HttpMethod.patch:
-            response = await httpClient!.patch(
+            responseFuture = httpClient!.patch(
               Uri.parse(pendingCall.url!),
               body: (pendingCall.body is String) ? pendingCall.body : jsonEncode(pendingCall.body),
               headers: pendingCall.headers,
             );
             break;
           case HttpMethod.delete:
-            response = await httpClient!.delete(
+            responseFuture = httpClient!.delete(
               Uri.parse(pendingCall.url!),
               headers: pendingCall.headers,
             );
             break;
         }
+        debugPrint("xhr send request 2 ${pendingCall.url}");
+        http.Response response = await responseFuture;
+        debugPrint("xhr send request 3 ${pendingCall.url}");
         XmlHttpRequestResponse xhrResult = xhrInterceptor.responseConverter(
             XhrResponse(statusCode: response.statusCode, headers: response.headers, isRedirect: response.isRedirect, bodyBytes: response.bodyBytes),
             pendingCall.headers);
+        debugPrint("xhr send request Success ${pendingCall.url}");
         final responseInfo = jsonEncode(xhrResult.responseInfo);
         final responseText = xhrResult.responseText?.replaceAll("\\n", "\\\n");
         final error = xhrResult.error;
