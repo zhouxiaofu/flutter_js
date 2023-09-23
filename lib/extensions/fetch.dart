@@ -7,9 +7,9 @@ var _fetchDebug = false;
 setFetchDebug(bool value) => _fetchDebug = value;
 
 extension JavascriptRuntimeFetchExtension on JavascriptRuntime {
-  Future<JavascriptRuntime> enableFetch({required ResponseType responseType}) async {
+  Future<JavascriptRuntime> enableFetch() async {
     debug('Before enable xhr');
-    enableXhr(responseType: responseType);
+    enableXhr();
     debug('After enable xhr');
     final fetchPolyfill =
         await rootBundle.loadString('packages/flutter_js/assets/js/fetch.js');
