@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_js/javascript_runtime.dart';
 import 'package:http/http.dart' as http;
 
@@ -23,7 +22,7 @@ import 'package:http/http.dart' as http;
  */
 
 // ignore: non_constant_identifier_names
-var _XHR_DEBUG = true;
+var _XHR_DEBUG = false;
 
 setXhrDebug(bool value) => _XHR_DEBUG = value;
 
@@ -254,11 +253,7 @@ extension JavascriptRuntimeXhrExtension on JavascriptRuntime {
 
   bool hasPendingXhrCalls() => getPendingXhrCalls()!.length > 0;
 
-  void clearXhrPendingCalls(int num) {
-    List<dynamic>? pendingCalls = dartContext[XHR_PENDING_CALLS_KEY];
-    if (pendingCalls?.length != num) {
-      debugPrint("clearXhrPendingCalls bug!!!");
-    }
+  void clearXhrPendingCalls() {
     dartContext[XHR_PENDING_CALLS_KEY] = [];
   }
 
@@ -273,7 +268,7 @@ extension JavascriptRuntimeXhrExtension on JavascriptRuntime {
       // collect the pending calls into a local variable making copies
       List<dynamic> pendingCalls = List<dynamic>.from(getPendingXhrCalls()!);
       // clear the global pending calls list
-      clearXhrPendingCalls(pendingCalls.length);
+      clearXhrPendingCalls();
 
       // for each pending call, calls the remote http service
       pendingCalls.forEach((element) async {
@@ -364,7 +359,6 @@ extension JavascriptRuntimeXhrExtension on JavascriptRuntime {
     if (_XHR_DEBUG) print('RESULT evalXhrResult: $evalXhrResult');
 
     this.onMessage('SendNative', (arguments) {
-      debugPrint("添加xhr请求0 $arguments");
       try {
         String? method = arguments[0];
         String? url = arguments[1];
@@ -380,10 +374,13 @@ extension JavascriptRuntimeXhrExtension on JavascriptRuntime {
           // if (headerName != null) {
           //   headers[headerName] = headerValue ?? '';
           // }
-          String headerKey = header[0];
-          headers[headerKey] = header[1];
+          String? key = header[0];
+          String? value = header[1];
+          if (key == null || value == null) {
+            return;
+          }
+          headers[key] = value;
         });
-        debugPrint("添加xhr请求 $url");
         (dartContext[XHR_PENDING_CALLS_KEY] as List<dynamic>).add(
           XhrPendingCall(
             idRequest: idRequest,
