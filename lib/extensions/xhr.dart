@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:flutter_js/javascript_runtime.dart';
 import 'package:http/http.dart' as http;
@@ -316,7 +317,9 @@ extension JavascriptRuntimeXhrExtension on JavascriptRuntime {
             );
             break;
         }
-        XmlHttpRequestResponse xhrResult = xhrInterceptor.responseConverter(response, pendingCall.headers);
+        XmlHttpRequestResponse xhrResult = xhrInterceptor.responseConverter(
+            XhrResponse(statusCode: response.statusCode, headers: response.headers, isRedirect: response.isRedirect, bodyBytes: response.bodyBytes),
+            pendingCall.headers);
         final responseInfo = jsonEncode(xhrResult.responseInfo);
         final responseText = xhrResult.responseText?.replaceAll("\\n", "\\\n");
         final error = xhrResult.error;
@@ -414,13 +417,13 @@ class XhtmlHttpResponseInfo {
 class XhrInterceptor {
   const XhrInterceptor();
 
-  Encoding bodyEncoding(http.Response response, Map<String, String> headers) {
+  Encoding bodyEncoding(XhrResponse response, Map<String, String> headers) {
     return utf8;
   }
 
   RequestInfo requestHandler(RequestInfo requestInfo) => requestInfo;
 
-  XmlHttpRequestResponse responseConverter(http.Response response, Map<String, String> headers) {
+  XmlHttpRequestResponse responseConverter(XhrResponse response, Map<String, String> headers) {
     // assuming request was successfully executed
     String responseText = bodyEncoding(response, headers).decode(response.bodyBytes);
     try {
@@ -431,6 +434,18 @@ class XhrInterceptor {
       responseInfo: XhtmlHttpResponseInfo(statusCode: 200, statusText: "OK"),
     );
   }
+}
+
+class XhrResponse {
+  final int statusCode;
+
+  final Map<String, String> headers;
+
+  final bool isRedirect;
+
+  final Uint8List bodyBytes;
+
+  XhrResponse({required this.statusCode, required this.headers, required this.isRedirect, required this.bodyBytes});
 }
 
 class RequestInfo {
