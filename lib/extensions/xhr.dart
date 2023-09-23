@@ -254,7 +254,11 @@ extension JavascriptRuntimeXhrExtension on JavascriptRuntime {
 
   bool hasPendingXhrCalls() => getPendingXhrCalls()!.length > 0;
 
-  void clearXhrPendingCalls() {
+  void clearXhrPendingCalls(int num) {
+    List<dynamic>? pendingCalls = dartContext[XHR_PENDING_CALLS_KEY];
+    if (pendingCalls?.length != num) {
+      debugPrint("clearXhrPendingCalls bug!!!");
+    }
     dartContext[XHR_PENDING_CALLS_KEY] = [];
   }
 
@@ -269,17 +273,14 @@ extension JavascriptRuntimeXhrExtension on JavascriptRuntime {
       // collect the pending calls into a local variable making copies
       List<dynamic> pendingCalls = List<dynamic>.from(getPendingXhrCalls()!);
       // clear the global pending calls list
-      clearXhrPendingCalls();
+      clearXhrPendingCalls(pendingCalls.length);
 
       // for each pending call, calls the remote http service
       pendingCalls.forEach((element) async {
-        debugPrint("xhr send request 0 $element");
         XhrPendingCall pendingCall = element as XhrPendingCall;
-        debugPrint("xhr send request ${pendingCall.url}");
         xhrInterceptor.requestHandler(RequestInfo.fromXhrPendingCall(pendingCall)).copyToPendingCall(pendingCall);
         HttpMethod eMethod = HttpMethod.values.firstWhere((e) => e.toString().toLowerCase() == ("HttpMethod.${pendingCall.method}".toLowerCase()));
         Future<http.Response> responseFuture;
-        debugPrint("xhr send request 1 ${pendingCall.url}");
         switch (eMethod) {
           case HttpMethod.head:
             responseFuture = httpClient!.head(
@@ -321,13 +322,10 @@ extension JavascriptRuntimeXhrExtension on JavascriptRuntime {
             );
             break;
         }
-        debugPrint("xhr send request 2 ${pendingCall.url}");
         http.Response response = await responseFuture;
-        debugPrint("xhr send request 3 ${pendingCall.url}");
         XmlHttpRequestResponse xhrResult = xhrInterceptor.responseConverter(
             XhrResponse(statusCode: response.statusCode, headers: response.headers, isRedirect: response.isRedirect, bodyBytes: response.bodyBytes),
             pendingCall.headers);
-        debugPrint("xhr send request Success ${pendingCall.url}");
         final responseInfo = jsonEncode(xhrResult.responseInfo);
         final responseText = xhrResult.responseText?.replaceAll("\\n", "\\\n");
         final error = xhrResult.error;
