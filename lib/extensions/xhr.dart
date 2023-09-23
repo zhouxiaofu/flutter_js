@@ -256,7 +256,7 @@ extension JavascriptRuntimeXhrExtension on JavascriptRuntime {
     dartContext[XHR_PENDING_CALLS_KEY] = [];
   }
 
-  JavascriptRuntime enableXhr({ResponseConverter responseConverter = defaultResponseConverter, RequestHandler requestHandler = defaultRequestHandler}) {
+  JavascriptRuntime enableXhr({required XhrInterceptor xhrInterceptor}) {
     httpClient = httpClient ?? http.Client();
     dartContext[XHR_PENDING_CALLS_KEY] = [];
 
@@ -272,7 +272,7 @@ extension JavascriptRuntimeXhrExtension on JavascriptRuntime {
       // for each pending call, calls the remote http service
       pendingCalls.forEach((element) async {
         XhrPendingCall pendingCall = element as XhrPendingCall;
-        requestHandler(RequestInfo.fromXhrPendingCall(pendingCall)).copyToPendingCall(pendingCall);
+        xhrInterceptor.requestHandler(RequestInfo.fromXhrPendingCall(pendingCall)).copyToPendingCall(pendingCall);
         HttpMethod eMethod = HttpMethod.values.firstWhere((e) => e.toString().toLowerCase() == ("HttpMethod.${pendingCall.method}".toLowerCase()));
         late http.Response response;
         switch (eMethod) {
@@ -316,7 +316,7 @@ extension JavascriptRuntimeXhrExtension on JavascriptRuntime {
             );
             break;
         }
-        XmlHttpRequestResponse xhrResult = responseConverter(response, pendingCall.headers);
+        XmlHttpRequestResponse xhrResult = xhrInterceptor.responseConverter(response, pendingCall.headers);
         final responseInfo = jsonEncode(xhrResult.responseInfo);
         final responseText = xhrResult.responseText?.replaceAll("\\n", "\\\n");
         final error = xhrResult.error;
@@ -411,24 +411,23 @@ class XhtmlHttpResponseInfo {
   }
 }
 
-typedef ResponseConverter = XmlHttpRequestResponse Function(http.Response response, Map<String, String> headers);
+class XhrInterceptor {
+  const XhrInterceptor();
 
-XmlHttpRequestResponse defaultResponseConverter(http.Response response, Map<String, String>? headers) {
-  // assuming request was successfully executed
-  String responseText = utf8.decode(response.bodyBytes);
-  try {
-    responseText = jsonEncode(json.decode(responseText));
-  } on Exception {}
-  XmlHttpRequestResponse xhrResult = XmlHttpRequestResponse(
-    responseText: responseText,
-    responseInfo: XhtmlHttpResponseInfo(statusCode: 200, statusText: "OK"),
-  );
-  return xhrResult;
+  RequestInfo requestHandler(RequestInfo requestInfo) => requestInfo;
+
+  XmlHttpRequestResponse responseConverter(http.Response response, Map<String, String> headers) {
+    // assuming request was successfully executed
+    String responseText = utf8.decode(response.bodyBytes);
+    try {
+      responseText = jsonEncode(json.decode(responseText));
+    } on Exception {}
+    return XmlHttpRequestResponse(
+      responseText: responseText,
+      responseInfo: XhtmlHttpResponseInfo(statusCode: 200, statusText: "OK"),
+    );
+  }
 }
-
-typedef RequestHandler = RequestInfo Function(RequestInfo requestInfo);
-
-RequestInfo defaultRequestHandler(RequestInfo requestInfo) => requestInfo;
 
 class RequestInfo {
   String? method;

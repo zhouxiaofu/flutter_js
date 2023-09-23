@@ -7,12 +7,11 @@ var _fetchDebug = false;
 setFetchDebug(bool value) => _fetchDebug = value;
 
 extension JavascriptRuntimeFetchExtension on JavascriptRuntime {
-  Future<JavascriptRuntime> enableFetch() async {
+  Future<JavascriptRuntime> enableFetch({required XhrInterceptor xhrInterceptor}) async {
     debug('Before enable xhr');
-    enableXhr();
+    enableXhr(xhrInterceptor: xhrInterceptor);
     debug('After enable xhr');
-    final fetchPolyfill =
-        await rootBundle.loadString('packages/flutter_js/assets/js/fetch.js');
+    final fetchPolyfill = await rootBundle.loadString('packages/flutter_js/assets/js/fetch.js');
     debug('Loaded fetchPolyfill');
     final evalFetchResult = evaluate(fetchPolyfill);
     debug('Eval Fetch Result: $evalFetchResult');
