@@ -273,6 +273,7 @@ extension JavascriptRuntimeXhrExtension on JavascriptRuntime {
 
       // for each pending call, calls the remote http service
       pendingCalls.forEach((element) async {
+        debugPrint("xhr send request 0 $element");
         XhrPendingCall pendingCall = element as XhrPendingCall;
         debugPrint("xhr send request ${pendingCall.url}");
         xhrInterceptor.requestHandler(RequestInfo.fromXhrPendingCall(pendingCall)).copyToPendingCall(pendingCall);
