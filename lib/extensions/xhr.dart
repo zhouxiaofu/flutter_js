@@ -382,6 +382,7 @@ extension JavascriptRuntimeXhrExtension on JavascriptRuntime {
           String headerKey = header[0];
           headers[headerKey] = header[1];
         });
+        debugPrint("添加xhr请求 $url");
         (dartContext[XHR_PENDING_CALLS_KEY] as List<dynamic>).add(
           XhrPendingCall(
             idRequest: idRequest,
