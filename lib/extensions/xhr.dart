@@ -23,7 +23,7 @@ import 'package:http/http.dart' as http;
  */
 
 // ignore: non_constant_identifier_names
-var _XHR_DEBUG = false;
+var _XHR_DEBUG = true;
 
 setXhrDebug(bool value) => _XHR_DEBUG = value;
 
@@ -364,6 +364,7 @@ extension JavascriptRuntimeXhrExtension on JavascriptRuntime {
     if (_XHR_DEBUG) print('RESULT evalXhrResult: $evalXhrResult');
 
     this.onMessage('SendNative', (arguments) {
+      debugPrint("添加xhr请求0 $arguments");
       try {
         String? method = arguments[0];
         String? url = arguments[1];
