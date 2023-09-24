@@ -26,12 +26,12 @@ export 'quickjs-sync-server/quickjs_oasis_jsbridge.dart';
 // REF:
 // - https://medium.com/flutter-community/conditional-imports-across-flutter-and-web-4b88885a886e
 // - https://github.com/creativecreatorormaybenot/wakelock/blob/master/wakelock/lib/wakelock.dart
-JavascriptRuntime getJavascriptRuntime({
-  bool forceJavascriptCoreOnAndroid = false,
-  bool xhr = true,
-  Map<String, dynamic>? extraArgs = const {},
-  XhrInterceptor xhrInterceptor = const XhrInterceptor(),
-}) {
+JavascriptRuntime getJavascriptRuntime(
+    {bool forceJavascriptCoreOnAndroid = false,
+    bool xhr = true,
+    Map<String, dynamic>? extraArgs = const {},
+    XhrInterceptor xhrInterceptor = const XhrInterceptor(),
+    String? fetchPolyfill}) {
   JavascriptRuntime runtime;
   if ((Platform.isAndroid && !forceJavascriptCoreOnAndroid)) {
     int stackSize = extraArgs?['stackSize'] ?? 1024 * 1024;
@@ -47,7 +47,7 @@ JavascriptRuntime getJavascriptRuntime({
   } else {
     runtime = JavascriptCoreRuntime();
   }
-  if (xhr) runtime.enableFetch(xhrInterceptor: xhrInterceptor);
+  if (xhr) runtime.enableFetch(xhrInterceptor: xhrInterceptor, fetchPolyfill: fetchPolyfill);
   runtime.enableHandlePromises();
   return runtime;
 }
