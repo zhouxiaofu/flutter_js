@@ -365,7 +365,7 @@ extension JavascriptRuntimeXhrExtension on JavascriptRuntime {
         String? method = arguments[0];
         String? url = arguments[1];
         dynamic headersList = arguments[2];
-        String? body = arguments[3];
+        String? body = arguments[3] == null ? arguments[3] : json.encode(arguments[3]);
         int? idRequest = arguments[4];
 
         Map<String, String> headers = {};
