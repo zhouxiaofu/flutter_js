@@ -276,6 +276,7 @@ extension JavascriptRuntimeXhrExtension on JavascriptRuntime {
         XhrPendingCall pendingCall = element as XhrPendingCall;
         xhrInterceptor.requestHandler(RequestInfo.fromXhrPendingCall(pendingCall)).copyToPendingCall(pendingCall);
         HttpMethod eMethod = HttpMethod.values.firstWhere((e) => e.toString().toLowerCase() == ("HttpMethod.${pendingCall.method}".toLowerCase()));
+        debugPrint("发送请求------------${pendingCall.url}");
         Future<http.Response> responseFuture;
         switch (eMethod) {
           case HttpMethod.head:
