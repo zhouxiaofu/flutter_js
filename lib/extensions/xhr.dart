@@ -321,7 +321,6 @@ extension JavascriptRuntimeXhrExtension on JavascriptRuntime {
         }
         http.Response response;
         debugPrint("发送请求++------------${pendingCall.url}");
-        debugPrint("测试-----------${(await httpClient!.get(Uri.parse("https://www.lewen0001.com/search?searchkey=%E6%98%9F%E9%97%A8"))).body}");
         debugPrint(
             "测试-----------${await (await (await HttpClient().getUrl(Uri.parse("https://www.lewen0001.com/search?searchkey=%E6%98%9F%E9%97%A8"))).close()).transform(utf8.decoder).join()}");
         try {
