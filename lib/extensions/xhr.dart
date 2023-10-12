@@ -360,6 +360,7 @@ extension JavascriptRuntimeXhrExtension on JavascriptRuntime {
     if (_XHR_DEBUG) debugPrint('RESULT evalXhrResult: $evalXhrResult');
 
     this.onMessage('SendNative', (arguments) {
+      if (_XHR_DEBUG) debugPrint('onMessage arguments: $arguments');
       try {
         String? method = arguments[0];
         String? url = arguments[1];
