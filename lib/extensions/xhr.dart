@@ -319,6 +319,7 @@ extension JavascriptRuntimeXhrExtension on JavascriptRuntime {
             break;
         }
         http.Response response = await responseFuture;
+        debugPrint("发送请求成功------------${pendingCall.url}");
         XmlHttpRequestResponse xhrResult = xhrInterceptor.responseConverter(
             XhrResponse(statusCode: response.statusCode, headers: response.headers, isRedirect: response.isRedirect, bodyBytes: response.bodyBytes),
             pendingCall.headers);
