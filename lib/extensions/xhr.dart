@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_js/javascript_runtime.dart';
 import 'package:http/http.dart' as http;
 
@@ -356,7 +357,7 @@ extension JavascriptRuntimeXhrExtension on JavascriptRuntime {
 
     final evalXhrResult = this.evaluate(xhrJsCode);
 
-    if (_XHR_DEBUG) print('RESULT evalXhrResult: $evalXhrResult');
+    if (_XHR_DEBUG) debugPrint('RESULT evalXhrResult: $evalXhrResult');
 
     this.onMessage('SendNative', (arguments) {
       try {
@@ -390,10 +391,10 @@ extension JavascriptRuntimeXhrExtension on JavascriptRuntime {
             body: body,
           ),
         );
-      } on Error catch (e) {
-        if (_XHR_DEBUG) print('ERROR calling sendNative on Dart: >>>> $e');
-      } on Exception catch (e) {
-        if (_XHR_DEBUG) print('Exception calling sendNative on Dart: >>>> $e');
+      } on Error catch (e, s) {
+        if (_XHR_DEBUG) debugPrint('ERROR calling sendNative on Dart: >>>> $e $s');
+      } on Exception catch (e, s) {
+        if (_XHR_DEBUG) debugPrint('Exception calling sendNative on Dart: >>>> $e $s');
       }
     });
     return this;
