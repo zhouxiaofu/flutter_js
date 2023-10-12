@@ -323,8 +323,13 @@ extension JavascriptRuntimeXhrExtension on JavascriptRuntime {
         http.Response response;
         debugPrint("发送请求++------------${pendingCall.url}");
         debugPrint("测试--aaa---------");
-        Response<String> res = await Dio().get("https://www.lewen0001.com/search?searchkey=%E6%98%9F%E9%97%A8");
-        debugPrint("测试-----------${res.data}");
+        try {
+          Response<String> res = await Dio().get("https://www.lewen0001.com/search?searchkey=%E6%98%9F%E9%97%A8");
+          debugPrint("测试-----------${res.data}");
+        } catch (e, s) {
+          debugPrint("测试--异常------$e $s");
+          rethrow;
+        }
         try {
           response = await responseFuture;
         } catch (e, s) {
