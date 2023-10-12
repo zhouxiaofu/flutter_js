@@ -321,7 +321,7 @@ extension JavascriptRuntimeXhrExtension on JavascriptRuntime {
         }
         http.Response response;
         try {
-          await responseFuture;
+          response = await responseFuture;
         } catch (e, s) {
           debugPrint("发送请求失败 $e $s");
           rethrow;
