@@ -322,15 +322,17 @@ extension JavascriptRuntimeXhrExtension on JavascriptRuntime {
         }
         http.Response response;
         debugPrint("js发送请求: ${pendingCall.url}");
+        XmlHttpRequestResponse xhrResult;
         try {
           response = await responseFuture;
+          xhrResult = xhrInterceptor.responseConverter(
+              XhrResponse(statusCode: response.statusCode, headers: response.headers, isRedirect: response.isRedirect, bodyBytes: response.bodyBytes),
+              pendingCall.headers);
         } catch (e, s) {
           debugPrint("发送js请求失败 $e $s");
-          rethrow;
+          xhrResult = XmlHttpRequestResponse(error: "发送js请求失败", responseInfo: XhtmlHttpResponseInfo(statusCode: 500, statusText: "request error"));
         }
-        XmlHttpRequestResponse xhrResult = xhrInterceptor.responseConverter(
-            XhrResponse(statusCode: response.statusCode, headers: response.headers, isRedirect: response.isRedirect, bodyBytes: response.bodyBytes),
-            pendingCall.headers);
+
         final responseInfo = jsonEncode(xhrResult.responseInfo);
         final responseText = xhrResult.responseText?.replaceAll("\\n", "\\\n");
         final error = xhrResult.error;
