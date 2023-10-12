@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_js/javascript_runtime.dart';
 import 'package:http/http.dart' as http;
@@ -321,9 +322,9 @@ extension JavascriptRuntimeXhrExtension on JavascriptRuntime {
         }
         http.Response response;
         debugPrint("发送请求++------------${pendingCall.url}");
-        debugPrint("测试000--");
-        debugPrint(
-            "测试-----------${await (await (await HttpClient().getUrl(Uri.parse("https://www.lewen0001.com/search?searchkey=%E6%98%9F%E9%97%A8"))).close()).transform(utf8.decoder).join()}");
+        debugPrint("测试--aaa---------");
+        Response<String> res = await Dio().get("https://www.lewen0001.com/search?searchkey=%E6%98%9F%E9%97%A8");
+        debugPrint("测试-----------${res.data}");
         try {
           response = await responseFuture;
         } catch (e, s) {
