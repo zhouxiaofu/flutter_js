@@ -321,22 +321,13 @@ extension JavascriptRuntimeXhrExtension on JavascriptRuntime {
             break;
         }
         http.Response response;
-        debugPrint("发送请求++------------${pendingCall.url}");
-        debugPrint("测试--aaa---------");
-        try {
-          Response<String> res = await Dio().get("https://www.lewen0001.com/search?searchkey=%E6%98%9F%E9%97%A8");
-          debugPrint("测试-----------${res.data}");
-        } catch (e, s) {
-          debugPrint("测试--异常------$e $s");
-          rethrow;
-        }
+        debugPrint("js发送请求: ${pendingCall.url}");
         try {
           response = await responseFuture;
         } catch (e, s) {
-          debugPrint("发送请求失败 $e $s");
+          debugPrint("发送js请求失败 $e $s");
           rethrow;
         }
-        debugPrint("发送请求成功------------${pendingCall.url}");
         XmlHttpRequestResponse xhrResult = xhrInterceptor.responseConverter(
             XhrResponse(statusCode: response.statusCode, headers: response.headers, isRedirect: response.isRedirect, bodyBytes: response.bodyBytes),
             pendingCall.headers);
